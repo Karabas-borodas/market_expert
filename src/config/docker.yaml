@@ -1,0 +1,16 @@
+services:
+ postgres:
+    image: postgres:15-alpine
+    container_name: market_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: Mihail
+      POSTGRES_PASSWORD: Chupa-lupa
+      POSTGRES_DB: marketplace
+    ports:
+      - "1863:1863"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
