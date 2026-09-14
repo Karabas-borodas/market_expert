@@ -1,6 +1,8 @@
 package storage
 
 import (
+	// "context"
+	// "fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"time"
 )
@@ -13,6 +15,9 @@ type MarketStorage struct {
 	Database string `yaml:"POSTGRES_DB" env-default:"marketplace"`
 	Port     string `env-defaul:"1863"`
 }
+
+// FIX:сделать подключение к базе данных
+// FIX: впихнуть логгер в поключение
 
 func NewGameStorage() (*MarketStorage, error) {
 	cfg, err := pgxpool.ParseConfig(urldb)
@@ -35,10 +40,10 @@ func NewGameStorage() (*MarketStorage, error) {
 	}
 
 	fmt.Println("✅ Successfully connected to PostgreSQL")
-	gs := &GameStorage{Conn: conn}
+	// gs := &MarketStorage{Conn: conn}
 
-	if err := gs.createDB(); err != nil {
-		return nil, fmt.Errorf("error creating database: %w", err)
-	}
+	// if err := gs.createDB(); err != nil {
+	// 	return nil, fmt.Errorf("error creating database: %w", err)
+	// }
 	return gs, nil
 }
