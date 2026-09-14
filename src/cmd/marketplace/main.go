@@ -2,10 +2,14 @@ package main
 
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
-	"fmt"
+	"Karabas-borodas/market_expert.git/internal/logger"
+	// "fmt"
 )
 
 func main() {
+	//NOTE: подключаем конфиг(docker.yaml)
 	cfg := config.MustLoad()
-	fmt.Println(cfg)
+	log := logger.SetupLogger(cfg.Env)
+	log.Info("start")
+	log.Debug("debug")
 }
