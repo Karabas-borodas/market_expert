@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: Mihail
+      POSTGRES_PASSWORD: Chupa-lupa
+      POSTGRES_DB: marketplace
+    ports:
+      - "5432:5432"  # Правильный формат: "хост:контейнер"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+# services:
+#  postgres:
+#     image: postgres:15-alpine
+#     container_name: market_db
+#     restart: unless-stopped
+#     environment:
+#     ports:
+#       - "1863:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#
+# volumes:
+#   postgres_data:
