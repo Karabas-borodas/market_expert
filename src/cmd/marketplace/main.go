@@ -14,7 +14,7 @@ type UserService struct {
 }
 
 func main() {
-	//NOTE: подключаем конфиг(docker.yaml)
+	//NOTE: подключаем конфиг приложения(config.yaml)
 	cfg := config.MustLoad()
 	log := logger.SetupLogger(cfg.Env)
 	//NOTE: debug commands

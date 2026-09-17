@@ -1,4 +1,4 @@
-package storage
+package postgres
 
 import (
 	"context"
@@ -8,16 +8,6 @@ import (
 	"log/slog"
 	"time"
 )
-
-// const urldb = "postgres://Mihail:Chupa-lupa@127.0.0.1:5432/marketplace"
-// FIX: удалить полсе
-type MarketStorage struct {
-	User     string `env:"POSTGRES_USER" env-default:"Mihail"`
-	Password string `env:"POSTGRES_PASSWORD" env-default:"Chupa-lupa"`
-	Database string `env:"POSTGRES_DB" env-default:"marketplace"`
-	Port     string `env-default:"5432"`
-	pool     *pgxpool.Pool
-}
 
 func CreateURL(log *slog.Logger) (string, error) {
 	connectStruct := MarketStorage{}

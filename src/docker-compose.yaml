@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_USER: Mihail
       POSTGRES_PASSWORD: Chupa-lupa
+      POSTGRESS_HOST: 127.0.0.1
       POSTGRES_DB: marketplace
     ports:
       - "5432:5432"  # Правильный формат: "хост:контейнер"

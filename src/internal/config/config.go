@@ -22,6 +22,14 @@ type HTTPserver struct {
 	Iddle_timeout time.Duration `yaml:"iddle_timeout" env-default:"80s"`
 }
 
+type PostgresConfig struct {
+	User     string `yaml:"POSTGRES_USER" env-default:"Mihail"`
+	Password string `yaml:"POSTGRES_PASSWORD" env-default:"Chupa-lupa"`
+	Host     string `yaml:"POSTGRESS_HOST" env-default:"127.0.0.1"`
+	Database string `yaml:"POSTGRES_DB" env-default:"marketplace"`
+	Port     string `yaml-default:"5432"`
+}
+
 func MustLoad() Config {
 	//FIX: захардкожен путь конфига чтол бы не вызвать каждый раз:
 	//FIX:CONFIG_PATH=config/docker.yaml go run cmd/marketplace/main.go
