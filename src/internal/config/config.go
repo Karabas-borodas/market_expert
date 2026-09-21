@@ -13,7 +13,8 @@ const configPath = "config/config.yaml"
 
 type Config struct {
 	Env        string `yaml:"env" env-default:"local"`
-	HTTPserver `yaml:"http_server"`
+	HTTPserver string `yaml:"http_server"`
+	// Posgress  strign`yaml:"`
 }
 
 type HTTPserver struct {

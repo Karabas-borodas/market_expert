@@ -3,27 +3,38 @@ package main
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
 	"Karabas-borodas/market_expert.git/internal/logger"
-	"Karabas-borodas/market_expert.git/internal/storage"
+	// "Karabas-borodas/market_expert.git/internal/storage"
+	"context"
 	"fmt"
 	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	// "fmt"
 )
 
 type UserService struct {
-	log *slog.Logger
+	log  *slog.Logger
+	pool *pgxpool.Pool
 }
 
 func main() {
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
+	var userService UserService
 	//NOTE: подключаем конфиг приложения(config.yaml)
 	cfg := config.MustLoad()
-	log := logger.SetupLogger(cfg.Env)
+	userService.log = logger.SetupLogger(cfg.Env)
 	//NOTE: debug commands
-	log.Info("config file donload")
-	log.Info("start")
-	log.Debug("debug")
-	storage, err := storage.NewMarkerStorage(log)
+	userService.log.Info("config file donload")
+	userService.log.Info("start")
+	userService.log.Debug("debug")
+	storage, err := postgres.NewMarkerStorage(userService.log, ctx, cfg.Postgres)
 	if err != nil {
-		log.Error("cant connect to DB", "error", err)
+		userService.log.Error("cant connect to DB", "error", err)
 	}
 	fmt.Println(storage)
 }
