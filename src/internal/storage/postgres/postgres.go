@@ -11,11 +11,11 @@ import (
 )
 
 // создание пула подключений к постгресс
-func NewPoolPostgress(u *slog.Logger, ctx context.Context, cfg config.PostgresConfig) (*pgxpool.Pool, error) {
-
-	urldb := fmt.Sprintf("postgres://%s:%s@127.0.0.1:%s/%s",
+func NewPoolPostgress(l *slog.Logger, ctx context.Context, cfg config.PostgresConfig) (*pgxpool.Pool, error) {
+	urldb := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		cfg.User,
 		cfg.Password,
+		cfg.Host,
 		cfg.Port,
 		cfg.Database,
 	)
@@ -33,15 +33,15 @@ func NewPoolPostgress(u *slog.Logger, ctx context.Context, cfg config.PostgresCo
 
 	conn, err := pgxpool.NewWithConfig(ctx, postgresPool)
 	if err != nil {
-		u.Debug("error sreating database %s", err)
+		l.Debug("error sreating database ", "error", err)
 		// fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
 		return nil, fmt.Errorf("error creating database: %w", err)
 	}
 	if err := (conn.Ping(ctx)); err != nil {
 		conn.Close()
-		u.Debug("database ping is fale ", "error", err)
+		l.Debug("database ping is fale ", "error", err)
 		return nil, fmt.Errorf("database ping failed: %w", err)
 	}
-	u.Info("✅ Successfully connected to PostgreSQL")
+	l.Info("✅ Successfully connected to PostgreSQL")
 	return conn, nil
 }

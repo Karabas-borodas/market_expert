@@ -3,7 +3,7 @@ package main
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
 	"Karabas-borodas/market_expert.git/internal/logger"
-	// "Karabas-borodas/market_expert.git/internal/storage"
+	"Karabas-borodas/market_expert.git/internal/storage/postgres"
 	"context"
 	"fmt"
 	"log/slog"
@@ -32,7 +32,7 @@ func main() {
 	userService.log.Info("config file donload")
 	userService.log.Info("start")
 	userService.log.Debug("debug")
-	storage, err := postgres.NewMarkerStorage(userService.log, ctx, cfg.Postgres)
+	storage, err := postgres.NewPoolPostgress(userService.log, ctx, cfg.Posgress)
 	if err != nil {
 		userService.log.Error("cant connect to DB", "error", err)
 	}

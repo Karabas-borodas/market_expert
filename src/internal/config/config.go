@@ -12,9 +12,9 @@ import (
 const configPath = "config/config.yaml"
 
 type Config struct {
-	Env        string `yaml:"env" env-default:"local"`
-	HTTPserver string `yaml:"http_server"`
-	// Posgress  strign`yaml:"`
+	Env        string         `yaml:"env" env-default:"local"`
+	HTTPserver HTTPserver     `yaml:"http_server"`
+	Posgress   PostgresConfig `yaml:"postgres"`
 }
 
 type HTTPserver struct {
