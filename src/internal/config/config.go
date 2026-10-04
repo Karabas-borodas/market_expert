@@ -33,7 +33,7 @@ type PostgresConfig struct {
 
 func MustLoad() Config {
 	//FIX: захардкожен путь конфига чтол бы не вызвать каждый раз:
-	//FIX:CONFIG_PATH=config/docker.yaml go run cmd/marketplace/main.go
+	//FIX:CONFIG_PATH=config/config.yaml go run cmd/marketplace/main.go
 	// configPath := os.Getenv("CONFIG_PATH")
 	if configPath == "" {
 		log.Fatalf("config file is not set")
