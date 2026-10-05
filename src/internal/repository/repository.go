@@ -19,12 +19,3 @@ func NewUserRepositury(log *slog.Logger, pool *pgxpool.Pool) *UserRepository {
 		pool: pool,
 	}
 }
-
-type UserRepositiry struct {
-	Id      uuid.UUID
-	Name    string
-	Sername string
-	Age     uint
-}
-
-func CreateUser()

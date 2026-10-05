@@ -1,4 +1,4 @@
-package service
+package domain
 
 import (
 	"github.com/google/uuid"
