@@ -2,6 +2,7 @@ package di
 
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
+	// "Karabas-borodas/market_expert.git/internal/domain"
 	"Karabas-borodas/market_expert.git/internal/logger"
 	"Karabas-borodas/market_expert.git/internal/storage/postgres"
 	"context"
@@ -36,6 +37,8 @@ func StartProgramm() {
 		userService.log.Error("cant create pool connect", "error", err)
 	}
 	userService.pool = poolStorage
-
+	// user := domain.GenerateUser()
 	fmt.Println(userService.pool)
+	fmt.Println("USer CREATED:")
+	// fmt.Println(user)
 }
