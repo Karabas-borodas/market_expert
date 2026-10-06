@@ -5,6 +5,7 @@ import (
 	// "Karabas-borodas/market_expert.git/internal/domain"
 	"Karabas-borodas/market_expert.git/internal/logger"
 	"Karabas-borodas/market_expert.git/internal/storage/postgres"
+	"Karabas-borodas/market_expert.git/internal/web"
 	"context"
 	"fmt"
 	"log/slog"
@@ -41,4 +42,5 @@ func StartProgramm() {
 	fmt.Println(userService.pool)
 	fmt.Println("USer CREATED:")
 	// fmt.Println(user)
+	web.StartMarkerWeb()
 }
