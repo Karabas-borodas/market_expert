@@ -35,6 +35,7 @@ func NewPoolPostgress(l *slog.Logger, ctx context.Context, cfg config.PostgresCo
 	if err != nil {
 		l.Debug("error sreating database ", "error", err)
 		// fmt.Fprintf(os.Stderr, "Unable to connect to database: %v\n", err)
+		conn.Close()
 		return nil, fmt.Errorf("error creating database: %w", err)
 	}
 	if err := (conn.Ping(ctx)); err != nil {

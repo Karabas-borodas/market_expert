@@ -35,12 +35,14 @@ func StartProgramm() {
 	userService.log.Info("start")
 	poolStorage, err := postgres.NewPoolPostgress(userService.log, ctx, cfg.Posgress)
 	if err != nil {
+		//WARNING: не закрывается при остановке приложения
 		userService.log.Error("cant create pool connect", "error", err)
+		panic(fmt.Sprintf("failed to create pool connect: %v", err))
 	}
 	userService.pool = poolStorage
 	// user := domain.GenerateUser()
-	fmt.Println(userService.pool)
+	// fmt.Println(userService.pool)
 	fmt.Println("USer CREATED:")
-	// fmt.Println(user)
-	web.StartMarkerWeb()
+	fmt.Println(cfg)
+	web.StartMarkerWeb(userService.log, cfg.HTTPserver)
 }
