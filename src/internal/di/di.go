@@ -4,6 +4,7 @@ import (
 	"Karabas-borodas/market_expert.git/internal/config"
 	// "Karabas-borodas/market_expert.git/internal/domain"
 	"Karabas-borodas/market_expert.git/internal/logger"
+	"Karabas-borodas/market_expert.git/internal/storage"
 	"Karabas-borodas/market_expert.git/internal/storage/postgres"
 	"Karabas-borodas/market_expert.git/internal/web"
 	"context"
@@ -40,6 +41,12 @@ func StartProgramm() {
 		panic(fmt.Sprintf("failed to create pool connect: %v", err))
 	}
 	userService.pool = poolStorage
+
+	store := storage.NewMarketStorage(userService.pool)
+	if err := store.CreateDB(); err != nil {
+		userService.log.Error("error creating tables", "error", err)
+	}
+	userService.log.Info("✅ Successfully connected to PostgreSQL")
 	// user := domain.GenerateUser()
 	// fmt.Println(userService.pool)
 	fmt.Println("USer CREATED:")

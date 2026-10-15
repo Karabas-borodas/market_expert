@@ -4,8 +4,8 @@ import (
 	"Karabas-borodas/market_expert.git/internal/domain"
 )
 
-func UserDomainToStorage(u domain.UserDomain) *UserRepositiry {
-	return &UserRepositiry{
+func UserDomainToStorage(u domain.UserDomain) *UserStorage {
+	return &UserStorage{
 		Id:      u.Id,
 		Name:    u.Name,
 		Sername: u.Sername,
@@ -13,7 +13,7 @@ func UserDomainToStorage(u domain.UserDomain) *UserRepositiry {
 	}
 }
 
-func UserStorageToDomain(u UserRepositiry) *domain.UserDomain {
+func UserStorageToDomain(u UserStorage) *domain.UserDomain {
 	return &domain.UserDomain{
 		Id:      u.Id,
 		Name:    u.Name,

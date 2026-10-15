@@ -1,12 +1,12 @@
 package storage
 
-import (
-	"github.com/google/uuid"
-)
+// import (
+// 	"github.com/google/uuid"
+// )
 
-type UserRepositiry struct {
-	Id      uuid.UUID
-	Name    string
-	Sername string
-	Age     uint
-}
+// type UserRepositiry struct {
+// 	Id      uuid.UUID
+// 	Name    string
+// 	Sername string
+// 	Age     uint
+// }

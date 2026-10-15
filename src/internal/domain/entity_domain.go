@@ -5,15 +5,21 @@ import (
 )
 
 type UserDomain struct {
-	Id      uuid.UUID
-	Name    string
-	Sername string
-	Age     uint
+	Email    string
+	Password string
+	Id       uuid.UUID
+	Name     string
+	Sername  string
+	Age      uint
 }
 
 type WalletDomain struct {
 	Id    uuid.UUID
 	money uint
+}
+type SignUpRequestDomain struct {
+	Login string `json:"login"`
+	Pass  string `json:"password"`
 }
 
 // func GenerateUser() *UserDomain {

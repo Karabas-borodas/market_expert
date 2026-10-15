@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
+	// "Karabas-borodas/market_expert.git/internal/domain"
 	"context"
 	"fmt"
 	// "github.com/ilyakaznacheev/cleanenv"
@@ -43,6 +44,10 @@ func NewPoolPostgress(l *slog.Logger, ctx context.Context, cfg config.PostgresCo
 		l.Debug("database ping is fale ", "error", err)
 		return nil, fmt.Errorf("database ping failed: %w", err)
 	}
-	l.Info("✅ Successfully connected to PostgreSQL")
+	// gs := &MarketStorage{Conn: conn}
+	// if err := gs.createDB(); err != nil {
+	// 	return nil, fmt.Errorf("error creating database: %w", err)
+	// }
+	// l.Info("✅ Successfully connected to PostgreSQL")
 	return conn, nil
 }
