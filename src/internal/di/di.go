@@ -41,15 +41,18 @@ func StartProgramm() {
 		panic(fmt.Sprintf("failed to create pool connect: %v", err))
 	}
 	userService.pool = poolStorage
+	defer userService.pool.Close()
 
-	store := storage.NewMarketStorage(userService.pool)
-	if err := store.CreateDB(); err != nil {
+	storeges := storage.NewMarketStorage(userService.pool)
+	if err := storeges.CreateDB(); err != nil {
 		userService.log.Error("error creating tables", "error", err)
+		panic("cant connet to db")
 	}
 	userService.log.Info("✅ Successfully connected to PostgreSQL")
 	// user := domain.GenerateUser()
 	// fmt.Println(userService.pool)
 	fmt.Println("USer CREATED:")
 	fmt.Println(cfg)
-	web.StartMarkerWeb(userService.log, cfg.HTTPserver)
+	web.StartMarkerWeb(ctx, userService.log, cfg.HTTPserver)
+
 }

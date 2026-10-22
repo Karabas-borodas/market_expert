@@ -3,10 +3,12 @@ package web
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
 	"Karabas-borodas/market_expert.git/internal/domain"
+	"context"
 	"encoding/json"
 	// "github.com/google/uuid"
 	"log/slog"
 	"net/http"
+	"time"
 )
 
 // const httpPort = ":3002"
@@ -50,15 +52,13 @@ type UserAuthenticator struct {
 //			next.ServeHTTP(w, r.WithContext(ctx))
 //		}
 //	}
-func StartMarkerWeb(l *slog.Logger, cfg config.HTTPserver) {
+func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver) {
 
 	configWeb := HTTPserverDomainToWeb(cfg)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello world!"))
 	})
-
-	l.Info("✅ Successfully server started")
 
 	mux.HandleFunc("POST /registr", func(w http.ResponseWriter, r *http.Request) {
 		var req SignUpRequestWeb
@@ -87,5 +87,31 @@ func StartMarkerWeb(l *slog.Logger, cfg config.HTTPserver) {
 		w.Write([]byte("USERRRR"))
 	})
 
-	_ = http.ListenAndServe(configWeb.Address, mux)
+	server := &http.Server{
+		Addr:    configWeb.Address,
+		Handler: mux,
+	}
+
+	// Запускаем сервер в горутине, чтобы не блокировать основной поток
+	go func() {
+		l.Info("✅ Successfully server started", "addr", configWeb.Address)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			l.Error("server listen error", "error", err)
+		}
+	}()
+
+	// Ждём сигнала завершения (Ctrl+C / SIGTERM)
+	<-ctx.Done()
+
+	l.Info("shutting down server...")
+
+	// Даём 5 секунд на завершение активных запросов
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		l.Error("server shutdown error", "error", err)
+	} else {
+		l.Info("server stopped gracefully")
+	}
 }
