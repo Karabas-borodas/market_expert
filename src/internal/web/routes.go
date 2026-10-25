@@ -60,6 +60,33 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 		w.Write([]byte("Hello world!"))
 	})
 
+	// mux.HandleFunc("POST /create", func(w http.ResponseWriter, r *http.Request) {
+	// 	var req SignUpRequestWeb
+	// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	// 		l.Debug("user put incorrect JSON")
+	// 		http.Error(w, "incorrect JSON", http.StatusBadRequest)
+	// 		return
+	// 	}
+	// 	if req.Login == "" || req.Pass == "" {
+	// 		l.Debug("A user entered an ampty rassword or username")
+	// 		http.Error(w, "Empty pass or login", http.StatusBadRequest)
+	// 		return
+	// 	}
+	//
+	// 	webUser := &SignUpRequestWeb{
+	// 		Login: req.Login,
+	// 		Pass:  req.Pass,
+	// 	}
+	// 	err := user.RegistUser(*SignUpWebToDomain(webUser))
+	// 	if err != nil {
+	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// 		return
+	// 	}
+	// 	w.WriteHeader(http.StatusCreated)
+	// 	l.Info("user add")
+	// 	// w.Write([]byte("Uer created"))
+	// })
+
 	mux.HandleFunc("POST /create", func(w http.ResponseWriter, r *http.Request) {
 		var req SignUpRequestWeb
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -77,9 +104,10 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			Login: req.Login,
 			Pass:  req.Pass,
 		}
-		err := user.RegistUser(*SignUpWebToDomain(webUser))
+		err := user.RegistUser(l, *SignUpWebToDomain(webUser))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
+			w.Write([]byte("User exist"))
 			return
 		}
 		w.WriteHeader(http.StatusCreated)

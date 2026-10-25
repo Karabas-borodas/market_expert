@@ -14,6 +14,7 @@ func NewMarketStorage(pool *pgxpool.Pool) *MarketStorage {
 }
 
 type SignUpRequestStorage struct {
+	Uuid  uuid.UUID
 	Login string
 	Pass  string
 }

@@ -12,20 +12,18 @@ func NewUserService(storage IUser) *UserService {
 	return &UserService{userStorage: storage}
 }
 
-func (u *UserService) RegistUser(user SignUpRequestDomain) error {
-	// _, _, err := u.userStorage.CheckUserStorage(user)
-	// if err == nil {
-	// 	return fmt.Errorf("пользователь уже существует")
-	// }
-	//
+func (u *UserService) RegistUser(l *slog.Logger, user SignUpRequestDomain) error {
+	_, _, err := u.userStorage.CheckUserAuthStorage(l, user.Login)
+	if err != nil {
+		l.Debug("user is exist %s", err)
+		return err
+	}
 	// if user.Login== .Login{
 	// 	user.Uuid = uuid.New()
 	// }
-	//FIX: пробросить логгер в самц функию а не создавать локально переменную
-	var l *slog.Logger
-	err := u.userStorage.SaveUserStorage(l, user)
+	err = u.userStorage.SaveUserAuthStorage(l, user)
 	if err != nil {
-		//FIX: fix error
+		l.Debug("Cant save usert to DB", err)
 		return nil //l.Errorf("ошибка сохранения: %w", err)
 	}
 	return nil

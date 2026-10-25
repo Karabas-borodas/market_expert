@@ -18,6 +18,7 @@ type WalletDomain struct {
 	money uint
 }
 type SignUpRequestDomain struct {
+	Uuid  uuid.UUID
 	Login string `json:"login"`
 	Pass  string `json:"password"`
 }

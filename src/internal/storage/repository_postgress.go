@@ -9,18 +9,35 @@ import (
 	"time"
 )
 
-func (u *UserStorage) CheckUserStorage(user domain.UserDomain) (string, uuid.UUID, error) {
-	// dbUser := UserDomainToStorage(user)
-	const sql = `
-	SELECT password, uuid FROM users WHERE login=$1;`
-	// ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	// defer cancel()
+// FIX: заменить возсратны параметры на структуру
+//
+//	func (m *MarketStorage) CheckUserAuthStorage(l *slog.Logger, user domain.SignUpRequestDomain) (string, uuid.UUID, error) {
+//		dbUser := SignUpRequestStorage(user)
+//		const sql = `
+//		SELECT pass, uuid FROM users_auth WHERE login=$1;`
+//		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+//		defer cancel()
+//		var password string
+//		var id uuid.UUID
+//		err := m.Conn.QueryRow(ctx, sql, dbUser.Login).Scan(&password, &id)
+//		if err != nil {
+//			l.Info("user not found")
+//			return "", uuid.Nil, err
+//		}
+//		return password, id, nil
+//	}
+//
+// WARNING: решить проблему с функйией
+func (m *MarketStorage) CheckUserAuthStorage(l *slog.Logger, login string) (string, uuid.UUID, error) {
+	const sql = `SELECT pass, uuid FROM users_auth WHERE login = $1`
+
 	var password string
 	var id uuid.UUID
-	// err := u.Conn.QueryRow(ctx, sql, dbUser.Login).Scan(&password, &id)
-	// if err != nil {
-	// 	return "", uuid.Nil, l.Errorf("error querying user: %w", err)
-	// }
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := m.Conn.QueryRow(ctx, sql, login).Scan(&password, &id); err != nil {
+		return "", uuid.Nil, fmt.Errorf("check user auth: %w", err)
+	}
 	return password, id, nil
 }
 
@@ -67,7 +84,7 @@ func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	return nil
 }
 
-func (u *MarketStorage) CheckUserInStorage(user domain.SignUpRequestDomain) (string, uuid.UUID, error) {
+func (u *MarketStorage) CheckUserInAuthStorage(user domain.SignUpRequestDomain) (string, uuid.UUID, error) {
 	dbUser := SignUpRequestStorage(user)
 	const sql = `
 	SELECT pass, uuid FROM users WHERE login=$1;`
@@ -92,6 +109,23 @@ func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpReques
 
 	newUUID := uuid.New() // генерируем uuid здесь
 	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass, "")
+	if err != nil {
+		l.Info("error savin user to table ", err)
+		return err
+	}
+	return nil
+}
+
+func (m *MarketStorage) SaveUserAuthStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
+	const sql = `
+		INSERT INTO users_auth (uuid, login, pass)
+		VALUES ($1, $2, $3);
+		`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	newUUID := uuid.New() // генерируем uuid здесь
+	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass)
 	if err != nil {
 		l.Info("error savin user to table ", err)
 		return err

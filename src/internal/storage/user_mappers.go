@@ -24,6 +24,7 @@ func UserStorageToDomain(u UserStorage) *domain.UserDomain {
 
 func RequestDomainToStorage(u domain.SignUpRequestDomain) *SignUpRequestStorage {
 	return &SignUpRequestStorage{
+		Uuid:  u.Uuid,
 		Login: u.Login,
 		Pass:  u.Pass,
 	}
@@ -32,6 +33,7 @@ func RequestDomainToStorage(u domain.SignUpRequestDomain) *SignUpRequestStorage 
 func RquestStoregeToDomain(u SignUpRequestStorage) *domain.SignUpRequestDomain {
 
 	return &domain.SignUpRequestDomain{
+		Uuid:  u.Uuid,
 		Login: u.Login,
 		Pass:  u.Pass,
 	}

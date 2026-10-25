@@ -24,6 +24,7 @@ type WalletWeb struct {
 }
 
 type SignUpRequestWeb struct {
+	Uuid  uuid.UUID
 	Login string `json:"login"`
 	Pass  string `json:"password"`
 }

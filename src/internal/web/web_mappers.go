@@ -32,12 +32,14 @@ func UserDomainToWeb(u domain.UserDomain) *UserWeb {
 
 func SignUpWebToDomain(s *SignUpRequestWeb) *domain.SignUpRequestDomain {
 	return &domain.SignUpRequestDomain{
+		Uuid:  s.Uuid,
 		Login: s.Login,
 		Pass:  s.Pass,
 	}
 }
 func SignUpDomainToWeb(s *domain.SignUpRequestDomain) *SignUpRequestWeb {
 	return &SignUpRequestWeb{
+		Uuid:  s.Uuid,
 		Login: s.Login,
 		Pass:  s.Pass,
 	}
