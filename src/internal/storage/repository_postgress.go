@@ -47,16 +47,34 @@ func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	return nil
 }
 
-func (m *MarketStorage) SaveUserStorage(user domain.SignUpRequestDomain) error {
+func (u *MarketStorage) CheckUserInStorage(user domain.SignUpRequestDomain) (string, uuid.UUID, error) {
+	dbUser := SignUpRequestStorage(user)
 	const sql = `
-		INSERT INTO users (login, pass)
-		VALUES ($1, $2);
+	SELECT pass, uuid FROM users WHERE login=$1;`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	var password string
+	var id uuid.UUID
+	err := u.Conn.QueryRow(ctx, sql, dbUser.Login).Scan(&password, &id)
+	if err != nil {
+		return "", uuid.Nil, fmt.Errorf("error querying user: %w", err)
+	}
+	return password, id, nil
+}
+
+func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
+	const sql = `
+		INSERT INTO users (uuid, login, pass, sername)
+		VALUES ($1, $2, $3, $4);
 		`
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_, err := m.Conn.Exec(ctx, sql, user.Login, user.Pass)
+
+	newUUID := uuid.New() // генерируем uuid здесь
+	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass, "")
 	if err != nil {
-		return fmt.Errorf("error saving user to table: %w", err)
+		l.Info("error savin user to table ", err)
+		return err
 	}
 	return nil
 }

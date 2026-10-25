@@ -84,7 +84,7 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 		}
 		w.WriteHeader(http.StatusCreated)
 		l.Info("user add")
-		w.Write([]byte("USERRRR"))
+		// w.Write([]byte("Uer created"))
 	})
 
 	server := &http.Server{

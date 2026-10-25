@@ -21,3 +21,18 @@ func UserStorageToDomain(u UserStorage) *domain.UserDomain {
 		Age:     u.Age,
 	}
 }
+
+func RequestDomainToStorage(u domain.SignUpRequestDomain) *SignUpRequestStorage {
+	return &SignUpRequestStorage{
+		Login: u.Login,
+		Pass:  u.Pass,
+	}
+}
+
+func RquestStoregeToDomain(u SignUpRequestStorage) *domain.SignUpRequestDomain {
+
+	return &domain.SignUpRequestDomain{
+		Login: u.Login,
+		Pass:  u.Pass,
+	}
+}

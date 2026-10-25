@@ -1,5 +1,9 @@
 package domain
 
+import (
+	"log/slog"
+)
+
 type UserService struct {
 	userStorage IUser
 }
@@ -17,8 +21,9 @@ func (u *UserService) RegistUser(user SignUpRequestDomain) error {
 	// if user.Login== .Login{
 	// 	user.Uuid = uuid.New()
 	// }
-
-	err := u.userStorage.SaveUserStorage(user)
+	//FIX: пробросить логгер в самц функию а не создавать локально переменную
+	var l *slog.Logger
+	err := u.userStorage.SaveUserStorage(l, user)
 	if err != nil {
 		//FIX: fix error
 		return nil //l.Errorf("ошибка сохранения: %w", err)
