@@ -44,6 +44,10 @@ func StartProgramm() {
 	defer userService.pool.Close()
 
 	storeges := storage.NewMarketStorage(userService.pool)
+	if err := storeges.CreateUserAuth(userService.log); err != nil {
+		userService.log.Error("error creating tables", "error", err)
+		panic("cant connet to db")
+	}
 	if err := storeges.CreateDB(userService.log); err != nil {
 		userService.log.Error("error creating tables", "error", err)
 		panic("cant connet to db")

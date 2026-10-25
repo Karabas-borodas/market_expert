@@ -24,6 +24,26 @@ func (u *UserStorage) CheckUserStorage(user domain.UserDomain) (string, uuid.UUI
 	return password, id, nil
 }
 
+// NOTE: таблица пользовательский аутентификации
+func (g *MarketStorage) CreateUserAuth(l *slog.Logger) error {
+	const sql = `
+	CREATE TABLE IF NOT EXISTS users_auth(
+		id SERIAL PRIMARY KEY,
+		uuid UUID UNIQUE NOT NULL,
+		login TEXT UNIQUE NOT NULL,
+		pass TEXT NOT NULL
+	);`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := g.Conn.Exec(ctx, sql)
+	if err != nil {
+		l.Debug("Cant create user_auth table", err)
+		return err
+	}
+	return nil
+}
+
 func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	const sql = `
 	CREATE TABLE IF NOT EXISTS users(
