@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
+	"log/slog"
 	"time"
 )
 
@@ -23,7 +24,7 @@ func (u *UserStorage) CheckUserStorage(user domain.UserDomain) (string, uuid.UUI
 	return password, id, nil
 }
 
-func (g *MarketStorage) CreateDB() error {
+func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	const sql = `
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
@@ -40,7 +41,22 @@ func (g *MarketStorage) CreateDB() error {
 
 	_, err := g.Conn.Exec(ctx, sql)
 	if err != nil {
-		return fmt.Errorf("create table/migration execution: %w", err)
+		l.Debug("Cant connect to db", err)
+		return err
+	}
+	return nil
+}
+
+func (m *MarketStorage) SaveUserStorage(user domain.SignUpRequestDomain) error {
+	const sql = `
+		INSERT INTO users (login, pass)
+		VALUES ($1, $2);
+		`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	_, err := m.Conn.Exec(ctx, sql, user.Login, user.Pass)
+	if err != nil {
+		return fmt.Errorf("error saving user to table: %w", err)
 	}
 	return nil
 }

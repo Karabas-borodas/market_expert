@@ -22,13 +22,13 @@ type SignUpRequestDomain struct {
 	Pass  string `json:"password"`
 }
 
-// func GenerateUser() *UserDomain {
-// 	var user UserDomain
-// 	user.Id = uuid.New()
-// 	return &user
-// }
-// func GenerateWallet(u UserDomain) *WalletDomain {
-// 	var wallet WalletDomain
-// 	wallet.Id = u.Id
-// 	return &wallet
-// }
+func GenerateUser() *UserDomain {
+	var user UserDomain
+	user.Id = uuid.New()
+	return &user
+}
+func GenerateWallet(u UserDomain) *WalletDomain {
+	var wallet WalletDomain
+	wallet.Id = u.Id
+	return &wallet
+}

@@ -5,7 +5,7 @@ import (
 )
 
 type IUser interface {
-	// SaveUserStorage(user UserDomain) error
+	SaveUserStorage(user SignUpRequestDomain) error
 	// CheckUserStorage(user UserDomain) (string, uuid.UUID, error)
 	// UpdateUserUUID(login string, newUuid uuid.UUID) error
 	// GetUserByUUID(id uuid.UUID) (*UserDomain, error)

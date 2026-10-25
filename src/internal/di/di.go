@@ -2,7 +2,7 @@ package di
 
 import (
 	"Karabas-borodas/market_expert.git/internal/config"
-	// "Karabas-borodas/market_expert.git/internal/domain"
+	"Karabas-borodas/market_expert.git/internal/domain"
 	"Karabas-borodas/market_expert.git/internal/logger"
 	"Karabas-borodas/market_expert.git/internal/storage"
 	"Karabas-borodas/market_expert.git/internal/storage/postgres"
@@ -44,15 +44,14 @@ func StartProgramm() {
 	defer userService.pool.Close()
 
 	storeges := storage.NewMarketStorage(userService.pool)
-	if err := storeges.CreateDB(); err != nil {
+	if err := storeges.CreateDB(userService.log); err != nil {
 		userService.log.Error("error creating tables", "error", err)
 		panic("cant connet to db")
 	}
 	userService.log.Info("✅ Successfully connected to PostgreSQL")
 	// user := domain.GenerateUser()
 	// fmt.Println(userService.pool)
-	fmt.Println("USer CREATED:")
-	fmt.Println(cfg)
-	web.StartMarkerWeb(ctx, userService.log, cfg.HTTPserver)
+	userDomainService := domain.NewUserService(storeges) // nil пока storage не реализован
+	web.StartMarkerWeb(ctx, userService.log, cfg.HTTPserver, userDomainService)
 
 }

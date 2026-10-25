@@ -52,7 +52,7 @@ type UserAuthenticator struct {
 //			next.ServeHTTP(w, r.WithContext(ctx))
 //		}
 //	}
-func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver) {
+func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, user *domain.UserService) {
 
 	configWeb := HTTPserverDomainToWeb(cfg)
 	mux := http.NewServeMux()
@@ -60,7 +60,7 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver) 
 		w.Write([]byte("Hello world!"))
 	})
 
-	mux.HandleFunc("POST /registr", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /create", func(w http.ResponseWriter, r *http.Request) {
 		var req SignUpRequestWeb
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			l.Debug("user put incorrect JSON")
@@ -73,15 +73,15 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver) 
 			return
 		}
 
-		// webUser := &SignUpRequestWeb{
-		// 	Login: req.Login,
-		// 	Pass:  req.Pass,
-		// }
-		// err := user.RegistUser(*SignUpWebToDomain(webUser))
-		// if err != nil {
-		// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-		// 	return
-		// }
+		webUser := &SignUpRequestWeb{
+			Login: req.Login,
+			Pass:  req.Pass,
+		}
+		err := user.RegistUser(*SignUpWebToDomain(webUser))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		w.WriteHeader(http.StatusCreated)
 		l.Info("user add")
 		w.Write([]byte("USERRRR"))
