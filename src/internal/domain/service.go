@@ -17,18 +17,13 @@ func NewUserService(storage IUser) *UserService {
 }
 
 func (u *UserService) RegistUser(l *slog.Logger, ctx context.Context, user SignUpRequestDomain) error {
-	// 1. Пытаемся найти пользователя
 	_, err := u.userStorage.CheckUserInAuthStorage(ctx, user.Login)
 
-	// 2. Если ошибки НЕТ (err == nil), значит пользователь НАЙДЕН.
-	// Регистрация невозможна.
 	if err == nil {
 		l.Debug("user already exists", "login", user.Login)
 		return fmt.Errorf("пользователь уже существует")
 	}
 
-	// 3. Если ошибка ЕСТЬ, проверяем: это "не найдено" или реальный сбой?
-	// Для этого нам понадобится импорт "errors" и "github.com/jackc/pgx/v5"
 	if !errors.Is(err, pgx.ErrNoRows) {
 		// Это НЕ "не найдено". Это сбой базы данных (нет связи, битый SQL).
 		l.Error("failed to check user", "error", err)

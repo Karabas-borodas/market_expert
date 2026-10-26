@@ -28,16 +28,16 @@ import (
 //	}
 //
 // WARNING: решить проблему с функйией
-func (m *MarketStorage) CheckUserAuthStorage(ctx context.Context, login string) (bool, error) {
-	const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE login = $1)`
-
-	var exists bool
-	err := m.Conn.QueryRow(ctx, sql, login).Scan(&exists)
-	if err != nil {
-		return false, fmt.Errorf("query user exists: %w", err)
-	}
-	return exists, nil
-}
+// func (m *MarketStorage) CheckUserAuthStorage(ctx context.Context, login string) (bool, error) {
+// 	const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE login = $1)`
+//
+// 	var exists bool
+// 	err := m.Conn.QueryRow(ctx, sql, login).Scan(&exists)
+// 	if err != nil {
+// 		return false, fmt.Errorf("query user exists: %w", err)
+// 	}
+// 	return exists, nil
+// }
 
 // NOTE: таблица пользовательский аутентификации
 func (g *MarketStorage) CreateUserAuth(l *slog.Logger) error {
@@ -101,22 +101,22 @@ func (u *MarketStorage) CheckUserInAuthStorage(ctx context.Context, dbUser strin
 	return *userDomain, nil
 }
 
-func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
-	const sql = `
-		INSERT INTO users (uuid, login, pass, sername)
-		VALUES ($1, $2, $3, $4);
-		`
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	newUUID := uuid.New() // генерируем uuid здесь
-	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass, "")
-	if err != nil {
-		l.Info("error savin user to table ", err)
-		return err
-	}
-	return nil
-}
+// func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
+// 	const sql = `
+// 		INSERT INTO users (uuid, login, pass, sername)
+// 		VALUES ($1, $2, $3, $4);
+// 		`
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
+//
+// 	newUUID := uuid.New() // генерируем uuid здесь
+// 	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass, "")
+// 	if err != nil {
+// 		l.Info("error savin user to table ", err)
+// 		return err
+// 	}
+// 	return nil
+// }
 
 func (m *MarketStorage) SaveUserAuthStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
 	const sql = `

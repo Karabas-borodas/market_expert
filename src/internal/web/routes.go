@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	// "github.com/google/uuid"
+	"encoding/base64"
 	"log/slog"
 	"net/http"
 	"time"
@@ -104,6 +105,7 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			Login: req.Login,
 			Pass:  req.Pass,
 		}
+		webUser.Pass = base64.StdEncoding.EncodeToString([]byte(webUser.Pass))
 		err := user.RegistUser(l, ctx, *SignUpWebToDomain(webUser))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -111,8 +113,8 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			return
 		}
 		w.WriteHeader(http.StatusCreated)
-		l.Info("user add")
-		// w.Write([]byte("Uer created"))
+		l.Info("user created")
+		w.Write([]byte("Uer created"))
 	})
 
 	server := &http.Server{
