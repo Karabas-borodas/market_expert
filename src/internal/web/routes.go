@@ -104,7 +104,7 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			Login: req.Login,
 			Pass:  req.Pass,
 		}
-		err := user.RegistUser(l, *SignUpWebToDomain(webUser))
+		err := user.RegistUser(l, ctx, *SignUpWebToDomain(webUser))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			w.Write([]byte("User exist"))

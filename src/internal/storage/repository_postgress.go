@@ -28,17 +28,15 @@ import (
 //	}
 //
 // WARNING: решить проблему с функйией
-func (m *MarketStorage) CheckUserAuthStorage(l *slog.Logger, login string) (string, uuid.UUID, error) {
-	const sql = `SELECT pass, uuid FROM users_auth WHERE login = $1`
+func (m *MarketStorage) CheckUserAuthStorage(ctx context.Context, login string) (bool, error) {
+	const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE login = $1)`
 
-	var password string
-	var id uuid.UUID
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := m.Conn.QueryRow(ctx, sql, login).Scan(&password, &id); err != nil {
-		return "", uuid.Nil, fmt.Errorf("check user auth: %w", err)
+	var exists bool
+	err := m.Conn.QueryRow(ctx, sql, login).Scan(&exists)
+	if err != nil {
+		return false, fmt.Errorf("query user exists: %w", err)
 	}
-	return password, id, nil
+	return exists, nil
 }
 
 // NOTE: таблица пользовательский аутентификации
@@ -84,19 +82,23 @@ func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	return nil
 }
 
-func (u *MarketStorage) CheckUserInAuthStorage(user domain.SignUpRequestDomain) (string, uuid.UUID, error) {
-	dbUser := SignUpRequestStorage(user)
-	const sql = `
-	SELECT pass, uuid FROM users WHERE login=$1;`
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	var password string
-	var id uuid.UUID
-	err := u.Conn.QueryRow(ctx, sql, dbUser.Login).Scan(&password, &id)
+func (u *MarketStorage) CheckUserInAuthStorage(ctx context.Context, dbUser string) (domain.SignUpRequestDomain, error) {
+	const sql = `SELECT pass, uuid FROM users_auth WHERE login=$1`
+
+	var userStorage SignUpRequestStorage
+
+	// Используем переданный ctx, не создаем новый!
+	err := u.Conn.QueryRow(ctx, sql, dbUser).Scan(&userStorage.Pass, &userStorage.Uuid)
 	if err != nil {
-		return "", uuid.Nil, fmt.Errorf("error querying user: %w", err)
+		// Если ошибка - возвращаем пустую структуру и ошибку (будь то ErrNoRows или сбой БД)
+		return domain.SignUpRequestDomain{}, fmt.Errorf("error querying user: %w", err)
 	}
-	return password, id, nil
+
+	// Сюда мы попадаем ТОЛЬКО если err == nil (пользователь найден)
+	userStorage.Login = dbUser
+	userDomain := RquestStoregeToDomain(userStorage)
+
+	return *userDomain, nil
 }
 
 func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
