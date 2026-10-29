@@ -20,9 +20,9 @@ type SignUpRequestStorage struct {
 }
 
 type UserStorage struct {
+	Id      uuid.UUID
 	Phone   string
 	Email   string
-	Id      uuid.UUID
 	Name    string
 	Sername string
 	Age     uint

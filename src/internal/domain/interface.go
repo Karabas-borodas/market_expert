@@ -11,4 +11,5 @@ type IUser interface {
 	CheckUserInAuthStorage(ctx context.Context, login string) (SignUpRequestDomain, error)
 	CheckUserInAuthStorageUUID(ctx context.Context, Id uuid.UUID) (SignUpRequestDomain, error)
 	SaveUserStorage(l *slog.Logger, user UserDomain) error
+	CheckUserInUserStorage(ctx context.Context, Id uuid.UUID) (bool, error)
 }

@@ -125,7 +125,7 @@ func (u *MarketStorage) CheckUserInAuthStorageUUID(ctx context.Context, Id uuid.
 	var userStorage SignUpRequestStorage
 
 	// Используем переданный ctx, не создаем новый!
-	err := u.Conn.QueryRow(ctx, sql, Id).Scan(&userStorage.Pass, &userStorage.Uuid)
+	err := u.Conn.QueryRow(ctx, sql, Id).Scan(&userStorage.Pass, &userStorage.Login)
 	if err != nil {
 		// Если ошибка - возвращаем пустую структуру и ошибку (будь то ErrNoRows или сбой БД)
 		return domain.SignUpRequestDomain{}, fmt.Errorf("error querying user: %w", err)
@@ -136,6 +136,22 @@ func (u *MarketStorage) CheckUserInAuthStorageUUID(ctx context.Context, Id uuid.
 	userDomain := RquestStoregeToDomain(userStorage)
 
 	return *userDomain, nil
+}
+func (u *MarketStorage) CheckUserInUserStorage(ctx context.Context, Id uuid.UUID) (bool, error) {
+	const sql = `SELECT EXISTS(SELECT 1 FROM users WHERE uuid = $1)`
+
+	var exist bool
+
+	// Используем переданный ctx, не создаем новый!
+	err := u.Conn.QueryRow(ctx, sql, Id).Scan(&exist)
+	if err != nil {
+		// Если ошибка - возвращаем пустую структуру и ошибку (будь то ErrNoRows или сбой БД)
+		return false, fmt.Errorf("error querying user: %w", err)
+	}
+
+	// Сюда мы попадаем ТОЛЬКО если err == nil (пользователь найден)
+
+	return exist, nil
 }
 
 // INFO:сохранение дополнительных данных пользователя в базу наддын user

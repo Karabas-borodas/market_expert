@@ -4,12 +4,15 @@ import (
 	"Karabas-borodas/market_expert.git/internal/config"
 	"Karabas-borodas/market_expert.git/internal/domain"
 	"context"
-	"encoding/json"
-	// "github.com/google/uuid"
 	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"github.com/google/uuid"
 	"log/slog"
 	"math"
 	"net/http"
+	"net/mail"
+	"regexp"
 	"time"
 )
 
@@ -19,41 +22,6 @@ type UserAuthenticator struct {
 	userService *domain.UserService
 }
 
-//	func (a *UserAuthenticator) Middleware(next http.HandlerFunc) http.HandlerFunc {
-//		return func(w http.ResponseWriter, r *http.Request) {
-//			// Извлекаем токен из куки или заголовка
-//			var userUUID uuid.UUID
-//			var err error
-//
-//			cookie, err := r.Cookie("session_token")
-//			if err == nil {
-//				userUUID, err = uuid.Parse(cookie.Value)
-//			} else {
-//				authHeader := r.Header.Get("Authorization")
-//				if authHeader != "" {
-//					userUUID, err = a.validateBasicAuth(authHeader)
-//				} else {
-//					err = http.ErrNoCookie
-//				}
-//			}
-//
-//			if err != nil {
-//				http.Error(w, "неавторизован", http.StatusUnauthorized)
-//				return
-//			}
-//
-//			// Проверяем существование пользователя
-//			_, err = a.userService.GetUserInfo(userUUID)
-//			if err != nil {
-//				http.Error(w, "неавторизован", http.StatusUnauthorized)
-//				return
-//			}
-//
-//			// Добавляем UUID в контекст
-//			ctx := context.WithValue(r.Context(), UserContextKey, userUUID)
-//			next.ServeHTTP(w, r.WithContext(ctx))
-//		}
-//	}
 func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, user *domain.UserService) {
 
 	configWeb := HTTPserverDomainToWeb(cfg)
@@ -74,6 +42,11 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			http.Error(w, "Empty Phon number, Email, or age <18", http.StatusBadRequest)
 			return
 		}
+		if err := ValidateUserWeb(&req); err != nil {
+			l.Debug("validation failed", "error", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 
 		webUser := &UserWeb{
 			Phone:   req.Phone,
@@ -83,7 +56,6 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 			Sername: req.Sername,
 			Age:     req.Age,
 		}
-		//FIX: вставить функци заполнения информации
 		err := user.SaveUserInfo(l, ctx, *UserWebToDomain(*webUser))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -150,4 +122,24 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 	} else {
 		l.Info("server stopped gracefully")
 	}
+}
+
+// INFO: возможно нужно вынести в отденьный файл
+func ValidateUserWeb(u *UserWeb) error {
+	if u.Id == uuid.Nil {
+		return fmt.Errorf("некорректный ID: %w")
+	}
+	if _, err := mail.ParseAddress(u.Email); err != nil {
+		return fmt.Errorf("некорректный Email: %w", err)
+	}
+	if !regexp.MustCompile(`^\+[1-9]\d{1,14}$`).MatchString(u.Phone) {
+		return fmt.Errorf("некорректный телефон")
+	}
+	if len(u.Name) < 2 || len(u.Sername) < 2 {
+		return fmt.Errorf("имя и фамилия слишком короткие")
+	}
+	if u.Age < 18 || u.Age > 120 {
+		return fmt.Errorf("возраст должен быть от 18 до 120 лет")
+	}
+	return nil
 }
