@@ -15,6 +15,8 @@ func HTTPserverDomainToWeb(serv config.HTTPserver) *HTTPserverWEB {
 
 func UserWebToDomain(u UserWeb) *domain.UserDomain {
 	return &domain.UserDomain{
+		Phone:   u.Phone,
+		Email:   u.Email,
 		Id:      u.Id,
 		Name:    u.Name,
 		Sername: u.Sername,
@@ -23,6 +25,8 @@ func UserWebToDomain(u UserWeb) *domain.UserDomain {
 }
 func UserDomainToWeb(u domain.UserDomain) *UserWeb {
 	return &UserWeb{
+		Phone:   u.Phone,
+		Email:   u.Email,
 		Id:      u.Id,
 		Name:    u.Name,
 		Sername: u.Sername,

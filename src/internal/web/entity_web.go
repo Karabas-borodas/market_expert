@@ -12,6 +12,8 @@ type HTTPserverWEB struct {
 }
 
 type UserWeb struct {
+	Phone   string
+	Email   string
 	Id      uuid.UUID
 	Name    string
 	Sername string

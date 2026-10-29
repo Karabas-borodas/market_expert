@@ -64,9 +64,10 @@ func (g *MarketStorage) CreateDB(l *slog.Logger) error {
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
 		uuid UUID UNIQUE NOT NULL,
-		login TEXT UNIQUE NOT NULL,
-		pass TEXT NOT NULL,
-		sername TEXT NOT NULL,
+		phone TEXT UNIQUE NOT NULL,
+		email TEXT UNIQUE NOT NULL,
+		name TEXT,
+		sername TEXT,
 		age INT NULL DEFAULT 0
 	);
 		`
@@ -101,23 +102,6 @@ func (u *MarketStorage) CheckUserInAuthStorage(ctx context.Context, dbUser strin
 	return *userDomain, nil
 }
 
-// func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
-// 	const sql = `
-// 		INSERT INTO users (uuid, login, pass, sername)
-// 		VALUES ($1, $2, $3, $4);
-// 		`
-// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-// 	defer cancel()
-//
-// 	newUUID := uuid.New() // генерируем uuid здесь
-// 	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass, "")
-// 	if err != nil {
-// 		l.Info("error savin user to table ", err)
-// 		return err
-// 	}
-// 	return nil
-// }
-
 func (m *MarketStorage) SaveUserAuthStorage(l *slog.Logger, user domain.SignUpRequestDomain) error {
 	const sql = `
 		INSERT INTO users_auth (uuid, login, pass)
@@ -128,6 +112,43 @@ func (m *MarketStorage) SaveUserAuthStorage(l *slog.Logger, user domain.SignUpRe
 
 	newUUID := uuid.New() // генерируем uuid здесь
 	_, err := m.Conn.Exec(ctx, sql, newUUID, user.Login, user.Pass)
+	if err != nil {
+		l.Info("error savin user to table ", err)
+		return err
+	}
+	return nil
+}
+
+func (u *MarketStorage) CheckUserInAuthStorageUUID(ctx context.Context, Id uuid.UUID) (domain.SignUpRequestDomain, error) {
+	const sql = `SELECT pass, login FROM users_auth WHERE uuid=$1`
+
+	var userStorage SignUpRequestStorage
+
+	// Используем переданный ctx, не создаем новый!
+	err := u.Conn.QueryRow(ctx, sql, Id).Scan(&userStorage.Pass, &userStorage.Uuid)
+	if err != nil {
+		// Если ошибка - возвращаем пустую структуру и ошибку (будь то ErrNoRows или сбой БД)
+		return domain.SignUpRequestDomain{}, fmt.Errorf("error querying user: %w", err)
+	}
+
+	// Сюда мы попадаем ТОЛЬКО если err == nil (пользователь найден)
+	userStorage.Uuid = Id
+	userDomain := RquestStoregeToDomain(userStorage)
+
+	return *userDomain, nil
+}
+
+// INFO:сохранение дополнительных данных пользователя в базу наддын user
+func (m *MarketStorage) SaveUserStorage(l *slog.Logger, user domain.UserDomain) error {
+	const sql = `
+		INSERT INTO users (uuid, phone, email, name, sername, age)
+		VALUES ($1, $2, $3, $4, $5, $6);
+		`
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	//WARNING: проверить нужно ли тут прогонять через мапперы из доменного слоя в слой базы данных
+	_, err := m.Conn.Exec(ctx, sql, user.Id, user.Phone, user.Email, user.Name, user.Sername, user.Age)
 	if err != nil {
 		l.Info("error savin user to table ", err)
 		return err

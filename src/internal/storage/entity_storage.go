@@ -20,6 +20,8 @@ type SignUpRequestStorage struct {
 }
 
 type UserStorage struct {
+	Phone   string
+	Email   string
 	Id      uuid.UUID
 	Name    string
 	Sername string

@@ -6,6 +6,8 @@ import (
 
 func UserDomainToStorage(u domain.UserDomain) *UserStorage {
 	return &UserStorage{
+		Phone:   u.Phone,
+		Email:   u.Email,
 		Id:      u.Id,
 		Name:    u.Name,
 		Sername: u.Sername,
@@ -15,6 +17,8 @@ func UserDomainToStorage(u domain.UserDomain) *UserStorage {
 
 func UserStorageToDomain(u UserStorage) *domain.UserDomain {
 	return &domain.UserDomain{
+		Phone:   u.Phone,
+		Email:   u.Email,
 		Id:      u.Id,
 		Name:    u.Name,
 		Sername: u.Sername,

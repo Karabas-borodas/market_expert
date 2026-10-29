@@ -8,6 +8,7 @@ import (
 	// "github.com/google/uuid"
 	"encoding/base64"
 	"log/slog"
+	"math"
 	"net/http"
 	"time"
 )
@@ -61,32 +62,37 @@ func StartMarkerWeb(ctx context.Context, l *slog.Logger, cfg config.HTTPserver, 
 		w.Write([]byte("Hello world!"))
 	})
 
-	// mux.HandleFunc("POST /create", func(w http.ResponseWriter, r *http.Request) {
-	// 	var req SignUpRequestWeb
-	// 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-	// 		l.Debug("user put incorrect JSON")
-	// 		http.Error(w, "incorrect JSON", http.StatusBadRequest)
-	// 		return
-	// 	}
-	// 	if req.Login == "" || req.Pass == "" {
-	// 		l.Debug("A user entered an ampty rassword or username")
-	// 		http.Error(w, "Empty pass or login", http.StatusBadRequest)
-	// 		return
-	// 	}
-	//
-	// 	webUser := &SignUpRequestWeb{
-	// 		Login: req.Login,
-	// 		Pass:  req.Pass,
-	// 	}
-	// 	err := user.RegistUser(*SignUpWebToDomain(webUser))
-	// 	if err != nil {
-	// 		http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 		return
-	// 	}
-	// 	w.WriteHeader(http.StatusCreated)
-	// 	l.Info("user add")
-	// 	// w.Write([]byte("Uer created"))
-	// })
+	mux.HandleFunc("POST /createInfo", func(w http.ResponseWriter, r *http.Request) {
+		var req UserWeb
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			l.Debug("user put incorrect JSON")
+			http.Error(w, "incorrect JSON", http.StatusBadRequest)
+			return
+		}
+		if req.Phone == "" || req.Email == "" || req.Age < 0 || req.Age > math.MaxInt {
+			l.Debug("A user entered an ampty rassword or username, or age")
+			http.Error(w, "Empty Phon number, Email, or age <18", http.StatusBadRequest)
+			return
+		}
+
+		webUser := &UserWeb{
+			Phone:   req.Phone,
+			Email:   req.Email,
+			Id:      req.Id,
+			Name:    req.Name,
+			Sername: req.Sername,
+			Age:     req.Age,
+		}
+		//FIX: вставить функци заполнения информации
+		err := user.SaveUserInfo(l, ctx, *UserWebToDomain(*webUser))
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusCreated)
+		l.Info("user info add")
+		// w.Write([]byte("Uer created"))
+	})
 
 	mux.HandleFunc("POST /create", func(w http.ResponseWriter, r *http.Request) {
 		var req SignUpRequestWeb

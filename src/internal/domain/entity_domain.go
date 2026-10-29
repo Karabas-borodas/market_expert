@@ -5,12 +5,12 @@ import (
 )
 
 type UserDomain struct {
-	Email    string
-	Password string
-	Id       uuid.UUID
-	Name     string
-	Sername  string
-	Age      uint
+	Id      uuid.UUID
+	Phone   string
+	Email   string
+	Name    string
+	Sername string
+	Age     uint
 }
 
 type WalletDomain struct {
